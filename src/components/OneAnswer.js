@@ -7,35 +7,40 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
+let colors = ['blue', 'green', 'pink', 'red'];
 
-export default function OneAnswer({ correctanswer, content, index, colors }) {
-  //   console.log(content);
+export default function OneAnswer({
+  correctanswer,
+  content,
+  index,
+  setIsclicked,
+  isclicked,
+}) {
+  const [ind, setInd] = useState();
   return (
     <TouchableOpacity
       onPress={() => {
-        if (index == correctanswer) {
-          for (const i = 0; i < 4; i = i + 1) {
-            if (i == correctanswer) {
-              colors[i] = 'green';
-            } else {
-              colors[i] = 'white';
-            }
-          }
-          console.log(colors);
-        }
+        setIsclicked(true);
+        setInd(index);
       }}
       key={index}
       style={{
         width: '80%',
         minHeight: 35,
-        backgroundColor: colors[index],
+        backgroundColor: isclicked
+          ? correctanswer == index
+            ? 'green'
+            : ind == index
+            ? 'red'
+            : 'white'
+          : colors[index],
         marginTop: 20,
         borderWidth: 1,
         borderColor: 1,
         borderRadius: 15,
         alignSelf: 'center',
         flexDirection: 'row',
-        paddingHorizontal: 10,
+        paddingHorizontal: 5,
         paddingVertical: 5,
       }}
     >

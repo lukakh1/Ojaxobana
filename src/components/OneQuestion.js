@@ -7,15 +7,15 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
+import Images from './Images';
 import OneAnswer from './OneAnswer';
 const screen = Dimensions.get('screen');
 
 export default function OneQuestion({ item, currentPage }) {
   const eachItem = item.item;
   const answers = eachItem.answers.split('.');
-  let colors = ['blue', 'green', 'pink', 'red'];
-  const [height, setHeight] = useState();
-  // console.log(answers, 'lukaa');
+  const [isclicked, setIsclicked] = useState(false);
+  const blurRadius = isclicked ? 0 : 10;
   return (
     <View
       style={{
@@ -30,22 +30,25 @@ export default function OneQuestion({ item, currentPage }) {
           height: screen.height + 70,
         }}
       >
-        <View
-          style={{
-            width: '94%',
-            alignSelf: 'center',
-            marginTop: 30,
-            // borderWidth: 2,
-            borderColor: 'black',
-          }}
-        >
-          <Image
-            resizeMode='contain'
-            style={{ width: '100%', height: 200 }}
-            // source={require(`../../assets/images/${eachItem.id}.jpg`)}
-            source={require(`../../assets/images/1.jpg`)}
-          />
-        </View>
+        {Images[eachItem.id.toString() + '.jpg'] && (
+          <View
+            style={{
+              width: '94%',
+              alignSelf: 'center',
+              marginTop: 30,
+              // borderWidth: 2,
+              borderColor: 'black',
+            }}
+          >
+            <Image
+              resizeMode='contain'
+              style={{ width: '100%', height: 200 }}
+              // source={require(`../../assets/images/${eachItem.id}.jpg`)}
+              source={require(`../../assets/images/1.jpg`)}
+              blurRadius={eachItem.is_blured == 1 ? blurRadius : 0}
+            />
+          </View>
+        )}
 
         <View
           style={{
@@ -73,7 +76,8 @@ export default function OneQuestion({ item, currentPage }) {
               content={item}
               index={index}
               key={index}
-              colors={colors}
+              isclicked={isclicked}
+              setIsclicked={setIsclicked}
             />
           ))}
       </ScrollView>
