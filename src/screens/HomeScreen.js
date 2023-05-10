@@ -1,22 +1,51 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-// import { Video, AVPlaybackStatus } from 'expo-av';
-import { getStatusBarHeight } from 'react-native-iphone-x-helper';
-import { Audio } from 'expo-av';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Image,
+} from 'react-native';
+import {
+  getStatusBarHeight,
+  getBottomSpace,
+} from 'react-native-iphone-x-helper';
+import CustomModal from '../components/CustomModal';
 import { db } from '../Datas/patarebisData';
+import Header from '../components/Header';
+
+const screen = Dimensions.get('screen');
 
 export default function HomeScreen({ navigation }) {
-  const video = useRef(null);
-  const [status, setStatus] = useState({});
-  const [sound, setSound] = useState();
-  const [homedata, sethomedata] = useState();
+  const [homeData, setHomeData] = useState();
+  const [correctData, setCorrectData] = useState([]);
+  const [wrongData, setWrongData] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
 
   async function loadDB() {
     db.transaction((tx) => {
-      tx.executeSql('SELECT * FROM patarebisData', [], (_, d) => {
-        sethomedata(d.rows._array);
-        // console.log(d.rows._array);
-      });
+      tx.executeSql(
+        'SELECT * FROM patarebisData WHERE answered = -1',
+        [],
+        (_, d) => {
+          setHomeData(d.rows._array);
+        }
+      );
+      tx.executeSql(
+        'SELECT * FROM patarebisData WHERE correct = answered',
+        [],
+        (_, d) => {
+          setCorrectData(d.rows._array);
+        }
+      );
+      tx.executeSql(
+        'SELECT * FROM patarebisData WHERE answered != correct AND answered != -1',
+        [],
+        (_, d) => {
+          setWrongData(d.rows._array);
+        }
+      );
     });
   }
 
@@ -24,108 +53,40 @@ export default function HomeScreen({ navigation }) {
     loadDB();
   }, []);
 
-  async function playSound() {
-    console.log('Loading Sound');
-    const { sound } = await Audio.Sound.createAsync(
-      require('../../assets/musics/ps1.mp3')
-    );
-    setSound(sound);
-
-    console.log('Playing Sound');
-    await sound.playAsync();
-  }
-
-  useEffect(() => {
-    return sound
-      ? () => {
-          console.log('Unloading Sound');
-          sound.unloadAsync();
-        }
-      : undefined;
-  }, [sound]);
-
   return (
     <View
       style={{
         flex: 1,
-        backgroundColor: '#89CFF0',
+        backgroundColor: '#BF40BF',
         marginTop: getStatusBarHeight(),
+        paddingBottom: getBottomSpace(),
       }}
     >
-      <TouchableOpacity
+      <Header back={false} navigation={navigation} />
+      <View
         style={{
-          height: 100,
-          backgroundColor: '#89CFF0',
-          marginTop: 60,
+          height: screen.height - getStatusBarHeight() - 80,
+          justifyContent: 'space-evenly',
         }}
-        onPress={() => navigation.navigate('Questions')}
       >
-        <View
-          style={{
-            backgroundColor: '#F9F6EE',
-            marginLeft: 18,
-            width: '85%',
-            borderWidth: 1,
-            borderColor: 'black',
-            borderRadius: 10,
-            height: 80,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 60,
-              color: 'black',
-              fontFamily: 'Asomtavruli',
-              alignSelf: 'center',
-            }}
-          >
-            დიდები
-          </Text>
-        </View>
         <TouchableOpacity
           style={{
-            width: 50,
-            height: 50,
-            backgroundColor: 'red',
-          }}
-          onPress={() => {
-            playSound();
-          }}
-        />
-        <View
-          style={{
-            backgroundColor: '#F9F6EE',
-            marginLeft: 28,
-            borderBottomWidth: 1,
-            borderRightWidth: 1,
-            borderColor: 'black',
-            borderRadius: 10,
-            height: 80,
-            marginTop: 10,
-            width: '85%',
-            position: 'absolute',
-            zIndex: -1,
-          }}
-        ></View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={{
-          height: 100,
-          backgroundColor: '#89CFF0',
-          bottom: 60,
-          position: 'absolute',
-        }}
-        onPress={() => navigation.navigate('Questions', { homedata: homedata })}
-      >
-        <View
-          style={{
             backgroundColor: '#F9F6EE',
             marginLeft: 18,
-            width: '100%',
+            width: screen.width - 46,
             borderWidth: 1,
             borderColor: 'black',
             borderRadius: 10,
-            height: 80,
+            height: '12%',
+            justifyContent: 'center',
+          }}
+          onPress={() => {
+            if (wrongData.length > 0 || correctData.length > 0) {
+              console.log('anu shveba');
+              setModalVisible(true);
+            } else {
+              navigation.navigate('Questions', { homedata: homeData, from: 0 });
+            }
           }}
         >
           <Text
@@ -138,42 +99,55 @@ export default function HomeScreen({ navigation }) {
           >
             პატარები
           </Text>
-        </View>
-        <View
+        </TouchableOpacity>
+        <Image
+          resizeMode='contain'
           style={{
-            backgroundColor: '#F9F6EE',
-            marginLeft: 28,
-            borderBottomWidth: 1,
-            borderRightWidth: 1,
-            borderColor: 'black',
-            borderRadius: 10,
-            height: 80,
-            marginTop: 10,
-            width: '100%',
-            position: 'absolute',
-            zIndex: -1,
+            width: screen.width,
+            height: '50%',
+            // marginTop: '20%',
           }}
-        ></View>
-      </TouchableOpacity>
-      {/* <Video
-        ref={video}
-        style={styles.video}
-        source={{
-          uri: 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4',
-        }}
-        shouldPlay={true}
-        useNativeControls={false}
-      /> */}
+          source={require('../../assets/splash.png')}
+        />
+        <View style={{ bottom: 20, justifyContent: 'space-between' }}>
+          <Text style={{ fontSize: 20, alignSelf: 'center' }}>მალე...</Text>
+          <View
+            style={{
+              backgroundColor: '#F9F6EE',
+              marginLeft: 18,
+              width: screen.width - 46,
+              borderWidth: 1,
+              borderColor: 'black',
+              borderRadius: 10,
+              height: 80,
+              backgroundColor: 'gray',
+              justifyContent: 'center',
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 60,
+                color: 'black',
+                fontFamily: 'Asomtavruli',
+                alignSelf: 'center',
+              }}
+            >
+              დიდები
+            </Text>
+          </View>
+        </View>
+      </View>
+      {modalVisible && (
+        <CustomModal
+          setModalVisible={setModalVisible}
+          navigation={navigation}
+          homeData={homeData}
+          correctData={correctData}
+          wrongData={wrongData}
+        />
+      )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  video: {
-    position: 'absolute',
-    top: 500,
-    left: '10%',
-    bottom: 0,
-    right: '10%',
-  },
-});
+const styles = StyleSheet.create({});

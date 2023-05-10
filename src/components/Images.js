@@ -40,4 +40,16 @@ const Images = {
   '55.jpg': require('../../assets/images/55.jpg'),
 };
 
-export default Images;
+const Videos = {
+  '19.mp4': require('../../assets/videos/19.mp4'),
+  '33.mp4': require('../../assets/videos/33.mp4'),
+  '40.mp4': require('../../assets/videos/40.mp4'),
+};
+
+const Audios = {
+  '2.mp3': require('../../assets/musics/2.mp3'),
+  '7.mp3': require('../../assets/musics/7.mp3'),
+  '29.mp3': require('../../assets/musics/29.mp3'),
+};
+
+export { Images, Videos, Audios };

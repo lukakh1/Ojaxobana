@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,7 +7,13 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 let colors = ['blue', 'green', 'pink', 'red'];
+import { db } from '../Datas/patarebisData';
 
 export default function OneAnswer({
   correctanswer,
@@ -15,13 +21,37 @@ export default function OneAnswer({
   index,
   setIsclicked,
   isclicked,
+  setBlurRadius,
+  questionid,
 }) {
-  const [ind, setInd] = useState();
+  console.log(questionid, 'martla kide esaa');
+  const [ind, setInd] = useState(-1);
+  async function loadDB() {
+    if (ind != -1) {
+      db.transaction((tx) => {
+        new Promise((resolve, reject) => {
+          console.log(ind, questionid, 'llll');
+          tx.executeSql(
+            `UPDATE patarebisData SET answered = ${ind} WHERE id = ${questionid}`,
+            [],
+            resolve,
+            (_, error) => reject(error)
+          );
+        });
+      });
+    }
+  }
+
+  useEffect(() => {
+    console.log(ind, questionid, 'oneonswer2');
+    loadDB();
+  }, [ind]);
   return (
     <TouchableOpacity
       onPress={() => {
         setIsclicked(true);
         setInd(index);
+        setBlurRadius(0);
       }}
       key={index}
       style={{
@@ -33,7 +63,7 @@ export default function OneAnswer({
             : ind == index
             ? 'red'
             : 'white'
-          : colors[index],
+          : '#de5307',
         marginTop: 20,
         borderWidth: 1,
         borderColor: 1,

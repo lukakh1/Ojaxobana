@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,12 +12,12 @@ import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 AppRegistry.registerComponent('main', () => App);
 
-export default function QuestionsScreen({ route }) {
+export default function QuestionsScreen({ route, navigation }) {
   const FlatlistRef = useRef();
   const [currentPage, setcurrentPage] = useState(0);
   const [viewableItems, setviewableItems] = useState([]);
-  // console.log(route.params.homedata);
   const patarebisData = route.params.homedata;
+  const from = route.params.from;
 
   const handleNext = () => {
     if (currentPage == patarebisData.length - 1) return;
@@ -47,6 +47,15 @@ export default function QuestionsScreen({ route }) {
   }, [viewableItems]);
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
+  const renderItem = ({ item }) => (
+    <OneQuestion
+      item={item}
+      currentPage={currentPage}
+      navigation={navigation}
+      key={item.id}
+    />
+  );
+  const memoizedValue = useMemo(() => renderItem, [patarebisData]);
   return (
     <View
       style={{
@@ -54,7 +63,7 @@ export default function QuestionsScreen({ route }) {
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: getStatusBarHeight(),
-        backgroundColor: 'purple',
+        backgroundColor: '#BF40BF',
       }}
     >
       <FlatList
@@ -66,9 +75,7 @@ export default function QuestionsScreen({ route }) {
         keyExtractor={(item, index) =>
           item?.id ? item.id.toString() : index.toString()
         }
-        renderItem={(item) => (
-          <OneQuestion item={item} currentPage={currentPage} />
-        )}
+        renderItem={memoizedValue}
         ref={FlatlistRef}
         onViewableItemsChanged={handleviewableItemsChanged.current}
         viewabilityConfig={viewConfigRef.current}
@@ -78,12 +85,16 @@ export default function QuestionsScreen({ route }) {
       <View
         style={{
           width: '100%',
-          // position: 'absolute',
           bottom: 0,
-          marginBottom: 10,
-          marginTop: 10,
           justifyContent: 'center',
           flexDirection: 'row',
+          backgroundColor: 'white',
+          height: 70,
+          paddingVertical: 10,
+          borderWidth: 3,
+          borderColor: 'white',
+          borderTopColor: 'black',
+          paddingBottom: 70,
         }}
       >
         <TouchableOpacity

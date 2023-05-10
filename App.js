@@ -11,7 +11,9 @@ import { openDatabase } from './src/Datas/patarebisData';
 import { Provider } from 'aniuta';
 
 import HomeScreen from './src/screens/HomeScreen';
+import VerificationScreen from './src/screens/VerificationScreen';
 import QuestionsScreen from './src/screens/QuestionsScreen';
+
 import { StatusBar } from 'expo-status-bar';
 
 const Stack = createNativeStackNavigator();
@@ -57,6 +59,7 @@ function App() {
               headerShown: false,
             }}
           >
+            <Stack.Screen name='Verification' component={VerificationScreen} />
             <Stack.Screen name='Home' component={HomeScreen} />
             <Stack.Screen name='Questions' component={QuestionsScreen} />
           </Stack.Navigator>
